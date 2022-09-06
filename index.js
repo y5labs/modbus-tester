@@ -11,9 +11,18 @@ const init_waveshare_hat = () => {
 }
 
 const test = async params => {
+  let close = () => {}
   try {
     init_waveshare_hat()
     const client = new ModbusRTU()
+    close = () => {
+      try {
+        client.close()
+      }
+      catch (e) {
+        console.error('error closing modbus client', e)
+      }
+    }
     client.setTimeout(500)
     await client.connectRTUBuffered(params.device, {
       baudRate: params.baudRate,
@@ -31,16 +40,18 @@ const test = async params => {
 
     const volume = data1.readFloatLE()
     const total = data2.readFloatLE()
+    close()
     return {
       success: true,
       data: { volume, total }
     }
   }
-  catch (e) {
-    console.error(e)
+  catch (error) {
+    console.error(error)
+    close()
     return {
       success: false,
-      error: e.toString()
+      error
     }
   }
 }
@@ -118,7 +129,9 @@ const server = http.createServer(async (req, res) => {
             handle = setTimeout(() => {
               body.style.backgroundColor = 'black'
             }, 2000)
-            alert(content.error)
+            setTimeout(() => {
+              alert(JSON.stringify(content.error))
+            }, 100)
           }
         }
         document.getElementById('test_standard').addEventListener('click', async e => {
@@ -147,7 +160,7 @@ const server = http.createServer(async (req, res) => {
   res.writeHead(404, { 'Content-Type': 'text/plain' })
   res.end('404 Not Found')
 })
-server.listen(5678)
+server.listen(5678, '0.0.0.0')
 
 console.log('Blue web server at port 5678 is running..')
 
