@@ -12,17 +12,6 @@ WorkingDirectory=/home/pi/source/modbus-tester
 ExecStart=/usr/bin/npm start
 
 [Install]
-WantedBy=multi-user.target[Unit]
-Description=Modbus Tester
-After=multi-user.target
-
-[Service]
-Type=idle
-User=pi
-WorkingDirectory=/home/pi/source/modbus-tester
-ExecStart=/usr/bin/npm start
-
-[Install]
 WantedBy=multi-user.target
 ```
 
